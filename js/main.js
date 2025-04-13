@@ -340,3 +340,14 @@ window.initMap = function () {
     title: "Resonance Design Studio",
   });
 };
+document
+  .getElementsByClassName("mobile-nav-toggle")[0]
+  .addEventListener("click", function () {
+    this.classList.toggle("active");
+    const navMenu = document.querySelector(".nav-menu");
+    if (this.classList.contains("active")) {
+      navMenu.style.display = "block";
+    } else {
+      navMenu.style.display = "none";
+    }
+  });
