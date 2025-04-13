@@ -340,14 +340,30 @@ window.initMap = function () {
     title: "Resonance Design Studio",
   });
 };
-document
-  .getElementsByClassName("mobile-nav-toggle")[0]
-  .addEventListener("click", function () {
-    this.classList.toggle("active");
-    const navMenu = document.querySelector(".nav-menu");
-    if (this.classList.contains("active")) {
-      navMenu.style.display = "block";
-    } else {
-      navMenu.style.display = "none";
-    }
+const mobileNavToggle = document.querySelector(".mobile-nav-toggle");
+const navMenu = document.querySelector(".nav-menu");
+
+// Toggle navigation when button is clicked
+mobileNavToggle.addEventListener("click", function () {
+  this.classList.toggle("active");
+  navMenu.classList.toggle("active");
+});
+
+// Close menu when clicking on a link
+document.querySelectorAll(".nav-menu a").forEach((link) => {
+  link.addEventListener("click", function () {
+    navMenu.classList.remove("active");
+    mobileNavToggle.classList.remove("active");
   });
+});
+
+// Close menu when clicking outside
+document.addEventListener("click", function (event) {
+  if (
+    !event.target.closest(".nav-menu") &&
+    !event.target.closest(".mobile-nav-toggle")
+  ) {
+    navMenu.classList.remove("active");
+    mobileNavToggle.classList.remove("active");
+  }
+});
