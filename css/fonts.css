@@ -1,0 +1,20 @@
+@font-face {
+  font-family: "Aspekta";
+  src: url("../fonts/aspekta-2.000/fonts/otf/Aspekta-300.otf");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Manolo";
+  src: url("../fonts/manolo-mono.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "NerdFont";
+  src: url("../fonts/ProtoNerdFont/0xProtoNerdFont-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
