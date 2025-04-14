@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const scrollThreshold = 100; // Amount of scroll needed before triggering section change
   let scrollQueue = [];
   let isProcessingScroll = false;
+  let lastKnownPosition = 0; // Track scroll position for mobile view
 
   // Touch handling variables
   let touchStartY = 0;
@@ -65,8 +66,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Apply initial mobile or desktop styles
   function applyLayoutStyles() {
-    if (isMobile()) {
-      // Mobile layout - keep hero section as is, modify other sections
+    const wasMobile = isMobile();
+    const isMobileNow = window.innerWidth <= 800;
+
+    if (isMobileNow) {
+      // Store current section before switching to mobile
+      if (!wasMobile) {
+        lastKnownPosition = currentSection;
+      }
+
+      // Mobile layout
       document
         .querySelectorAll("section:not(.hero-section)")
         .forEach((section) => {
@@ -78,8 +87,31 @@ document.addEventListener("DOMContentLoaded", () => {
       document.body.style.overflow = "visible";
       document.body.style.position = "static";
       document.body.style.height = "auto";
+
+      // Scroll to the right section on mobile
+      if (!wasMobile) {
+        const targetSection = sections[lastKnownPosition];
+        if (targetSection) {
+          setTimeout(() => {
+            targetSection.scrollIntoView({ behavior: "instant" });
+          }, 0);
+        }
+      }
     } else {
       // Desktop layout
+      if (wasMobile) {
+        // Find current section based on scroll position
+        const scrollPos = window.scrollY;
+        let newCurrentSection = 0;
+        sections.forEach((section, index) => {
+          const rect = section.getBoundingClientRect();
+          if (rect.top <= window.innerHeight / 2) {
+            newCurrentSection = index;
+          }
+        });
+        currentSection = newCurrentSection;
+      }
+
       sections.forEach((section, i) => {
         section.style.position = "fixed";
         section.style.transform = `translateY(${(i - currentSection) * 100}%)`;
@@ -111,12 +143,19 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Update header visibility and back-to-top button
+    // Update header visibility (only on desktop) and back-to-top button
+    if (!isMobile()) {
+      if (currentSection === 0) {
+        header.classList.remove("hidden");
+      } else {
+        header.classList.add("hidden");
+      }
+    }
+
+    // Update back-to-top button visibility
     if (currentSection === 0) {
-      header.classList.remove("hidden");
       backToTopButton.classList.remove("visible");
     } else {
-      header.classList.add("hidden");
       backToTopButton.classList.add("visible");
     }
 
@@ -219,12 +258,19 @@ document.addEventListener("DOMContentLoaded", () => {
   function handleScroll() {
     const scrollPosition = window.scrollY || window.pageYOffset;
 
-    // Check if we've scrolled past the threshold
+    // Only hide header on desktop
+    if (!isMobile()) {
+      if (scrollPosition > scrollThreshold) {
+        header.classList.add("hidden");
+      } else {
+        header.classList.remove("hidden");
+      }
+    }
+
+    // Back to top button visibility
     if (scrollPosition > scrollThreshold) {
-      header.classList.add("hidden");
       backToTopButton.classList.add("visible");
     } else {
-      header.classList.remove("hidden");
       backToTopButton.classList.remove("visible");
     }
   }
@@ -252,6 +298,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Reset form
       this.reset();
+    });
+  }
+
+  // Scroll arrow functionality
+  const scrollArrow = document.querySelector(".scroll-arrow");
+  if (scrollArrow) {
+    scrollArrow.addEventListener("click", () => {
+      if (isMobile()) {
+        const projectsSection = document.getElementById("projects");
+        projectsSection.scrollIntoView({ behavior: "smooth" });
+      } else {
+        scrollToSection(1);
+      }
     });
   }
 
@@ -366,4 +425,13 @@ document.addEventListener("click", function (event) {
     navMenu.classList.remove("active");
     mobileNavToggle.classList.remove("active");
   }
+});
+
+// Event listeners with debouncing for resize
+let resizeTimeout;
+window.addEventListener("resize", () => {
+  if (resizeTimeout) {
+    clearTimeout(resizeTimeout);
+  }
+  resizeTimeout = setTimeout(applyLayoutStyles, 100);
 });
