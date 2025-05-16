@@ -280,24 +280,38 @@ document.addEventListener("DOMContentLoaded", () => {
     contactForm.addEventListener("submit", function (e) {
       e.preventDefault();
 
-      // Get form data
-      const formData = {
-        firstname: this.firstname.value,
-        lastname: this.lastname.value,
-        email: this.email.value,
-        phone: this.phone.value,
-        source: this.source.value,
-        message: this.message.value,
-      };
+      // Create FormData object
+      const formData = new FormData(this);
 
-      // Here you would typically send the form data to a server
-      console.log("Form submitted:", formData);
+      // Disable submit button and show loading state
+      const submitBtn = this.querySelector(".submit-btn");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Sending...";
 
-      // Show success message
-      alert("Thank you for your message. We will get back to you soon!");
+      // Send form data using fetch
+      fetch("process_form.php", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          // Show response message to user
+          alert(data.message);
 
-      // Reset form
-      this.reset();
+          if (data.success) {
+            // Reset form on success
+            this.reset();
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An error occurred. Please try again later.");
+        })
+        .finally(() => {
+          // Re-enable submit button
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Submit";
+        });
     });
   }
 

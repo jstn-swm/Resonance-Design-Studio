@@ -262,27 +262,46 @@ section {
 
 .projects-container {
   display: flex;
-  gap: 2rem;
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  gap: 1.5rem;
+  padding: 1rem;
+  max-width: 100%;
+  width: calc(100% - 2rem);
+  margin: 0 auto 4rem;
   min-height: fit-content;
-  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  align-items: flex-start; /* Keep columns aligned at the top */
+  position: relative; /* Establish positioning context */
+  will-change: transform; /* Optimize for animations */
 }
 
 .project-column {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 2rem; /* Gap between cards */
   min-height: fit-content;
+  box-sizing: border-box;
+  position: relative; /* For better position stability */
+  will-change: opacity; /* Optimize performance */
+  margin-bottom: 0;
+  min-width: 0; /* Prevent flex items from overflowing */
+  justify-content: flex-start; /* Align items at the top */
 }
 
 .project-card {
   position: relative;
   width: 100%;
-  margin-bottom: 2rem;
   height: auto;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  overflow: hidden;
+  transform: none !important; /* Prevent any transforms from misaligning cards */
+  backface-visibility: hidden; /* Improve rendering */
+  -webkit-font-smoothing: antialiased; /* Better text rendering */
+  align-self: stretch; /* Ensure card uses full width of column */
+  margin-bottom: 0; /* No bottom margin - we'll control spacing explicitly */
 }
 
 .project-image-container {
@@ -294,8 +313,8 @@ section {
   align-items: center;
   justify-content: center;
   background-color: var(--background-color);
-  min-height: 300px;
-  height: auto;
+  height: 300px;
+  max-width: 100%;
 }
 
 .project-image {
@@ -347,16 +366,47 @@ section {
   scroll-timeline: --scroll block;
 }
 
-.projects-page body {
-  position: relative;
-  overflow: visible;
-  height: auto;
+/* Override the fixed positioning for projects page */
+html.projects-page,
+html.projects-page body,
+.project-page-body {
+  position: static !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: auto !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+  min-height: 100%;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Special header styling for projects page */
+.static-header {
+  background-color: var(--background-color);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  transition: background-color 0.3s ease;
+  padding: 1rem 0;
+}
+
+.static-header.scrolled {
+  background-color: rgba(44, 44, 44, 0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .projects-page-content {
-  padding: 6rem 2rem 2rem;
+  padding: 6rem 0.5rem 6rem;
   min-height: 100vh;
   background: var(--background-color);
+  position: relative;
+  z-index: 1;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Featured Gallery */
@@ -536,6 +586,12 @@ section {
 .contact-section {
   padding: 6rem 0;
   background: var(--background-color);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: var(--background-color);
+  backdrop-filter: blur(50px);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -694,6 +750,7 @@ hr {
   z-index: 10;
   position: relative;
   width: 100%;
+  clear: both;
 }
 
 .footer-content > div {
@@ -739,31 +796,42 @@ footer a:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Row Animations */
-.project-column:nth-child(1) .project-card:nth-child(2) {
-  animation: slideRow 0.5s cubic-bezier(0.2, 0, 0, 1) both;
-  animation-timeline: --scroll;
-  animation-range: entry 45% cover 65%;
+/* Row Animations - Modified to use opacity instead of transforms, and appear sooner */
+@media (min-width: 801px) {
+  /* Only apply animations on desktop */
+  .project-column:nth-child(1) .project-card:nth-child(2) {
+    animation: fadeIn 0.5s cubic-bezier(0.2, 0, 0, 1) both;
+    animation-timeline: --scroll;
+    animation-range: entry 25% cover 45%;
+  }
+
+  .project-column:nth-child(2) .project-card:nth-child(2) {
+    animation: fadeIn 0.5s cubic-bezier(0.2, 0, 0, 1) both;
+    animation-timeline: --scroll;
+    animation-range: entry 30% cover 50%;
+  }
+
+  .project-column:nth-child(3) .project-card:nth-child(2) {
+    animation: fadeIn 0.5s cubic-bezier(0.2, 0, 0, 1) both;
+    animation-timeline: --scroll;
+    animation-range: entry 35% cover 55%;
+  }
 }
 
-.project-column:nth-child(2) .project-card:nth-child(2) {
-  animation: slideRow 0.5s cubic-bezier(0.2, 0, 0, 1) both;
-  animation-timeline: --scroll;
-  animation-range: entry 50% cover 70%;
+/* Make all cards visible by default on mobile */
+@media (max-width: 800px) {
+  .project-card {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
-.project-column:nth-child(3) .project-card:nth-child(2) {
-  animation: slideRow 0.5s cubic-bezier(0.2, 0, 0, 1) both;
-  animation-timeline: --scroll;
-  animation-range: entry 55% cover 75%;
-}
-
-@keyframes slideRow {
+@keyframes fadeIn {
   from {
-    transform: translateY(30px);
+    opacity: 0;
   }
   to {
-    transform: translateY(0);
+    opacity: 1;
   }
 }
 
@@ -805,7 +873,7 @@ footer a:hover {
 }
 
 /* Responsive Design */
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .project-grid {
     columns: 2;
   }
@@ -813,11 +881,21 @@ footer a:hover {
   .projects-container {
     flex-direction: column;
     padding: 1rem;
+    max-width: 100%;
+    align-items: center;
   }
 
   .project-column {
     width: 100%;
     padding: 0;
+    margin-right: 0;
+    align-items: center;
+    max-width: 650px; /* Prevent overly wide cards on tablet */
+  }
+
+  .project-image-container {
+    height: auto;
+    max-height: 350px;
   }
 }
 
