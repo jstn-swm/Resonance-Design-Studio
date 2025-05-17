@@ -27,11 +27,11 @@ function sendEmail($to, $subject, $body, $from, $fromName) {
         $mail->SMTPAuth = true;
         $mail->Username = SMTP_USER;
         $mail->Password = SMTP_PASS;
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Use SMTPS for port 465
         $mail->Port = SMTP_PORT;
         
         // Recipients
-        $mail->setFrom($from, $fromName);
+        $mail->setFrom(SMTP_USER, $fromName); // Always use authenticated email as the sender
         $mail->addAddress($to);
         $mail->addReplyTo($from, $fromName);
         
@@ -60,6 +60,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $phone = sanitize_input($_POST['phone'] ?? '');
         $source = sanitize_input($_POST['source'] ?? '');
         $message = sanitize_input($_POST['message'] ?? '');
+
+        // Format how the user heard about the site for email
+        $sourceOptions = [
+            'referral' => 'Referral',
+            'social' => 'Social Media',
+            'search' => 'Search Engine',
+            'other' => 'Other'
+        ];
+        $sourceText = $sourceOptions[$source] ?? $source;
 
         // Validation
         $errors = [];
@@ -109,8 +118,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <p><strong>Name:</strong> $firstname $lastname</p>
             <p><strong>Email:</strong> $email</p>
             <p><strong>Phone:</strong> $phone</p>
-            <p><strong>Source:</strong> $source</p>
-            <p><strong>Message:</strong><br>$message</p>
+            <p><strong>How they found us:</strong> $sourceText</p>
+            <p><strong>Message:</strong><br>" . nl2br($message) . "</p>
         ";
 
         // Send email using PHPMailer

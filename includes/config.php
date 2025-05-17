@@ -38,10 +38,10 @@ loadEnv();
 
 // Email configuration - use Hostinger's SMTP if available
 define('SMTP_HOST', getenv('SMTP_HOST') ?: 'smtp.hostinger.com');
-define('SMTP_PORT', getenv('SMTP_PORT') ?: '587');
-define('SMTP_USER', getenv('SMTP_USER') ?: DB_USER);
-define('SMTP_PASS', getenv('SMTP_PASS') ?: DB_PASS);
-define('ADMIN_EMAIL', getenv('ADMIN_EMAIL') ?: 'your@email.com');
+define('SMTP_PORT', getenv('SMTP_PORT') ?: '465');
+define('SMTP_USER', getenv('SMTP_USER') ?: 'info@resonancedesignstudio.com');
+define('SMTP_PASS', getenv('SMTP_PASS') ?: ''); // Set your actual password here
+define('ADMIN_EMAIL', getenv('ADMIN_EMAIL') ?: 'info@resonancedesignstudio.com');
 
 // Security configuration with fallback
 define('ENCRYPTION_KEY', getenv('ENCRYPTION_KEY') ?: hash('sha256', DB_PASS));

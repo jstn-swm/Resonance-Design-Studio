@@ -277,6 +277,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Contact form submission
   if (contactForm) {
+    // Create form status element if it doesn't exist
+    let formStatus = document.getElementById("form-status");
+    if (!formStatus) {
+      formStatus = document.createElement("div");
+      formStatus.id = "form-status";
+      formStatus.className = "form-status";
+      contactForm.appendChild(formStatus);
+    }
+
     contactForm.addEventListener("submit", function (e) {
       e.preventDefault();
 
@@ -288,6 +297,11 @@ document.addEventListener("DOMContentLoaded", () => {
       submitBtn.disabled = true;
       submitBtn.textContent = "Sending...";
 
+      // Show sending state
+      formStatus.textContent = "Sending your message...";
+      formStatus.className = "form-status sending";
+      formStatus.style.display = "block";
+
       // Send form data using fetch
       fetch("process_form.php", {
         method: "POST",
@@ -295,17 +309,26 @@ document.addEventListener("DOMContentLoaded", () => {
       })
         .then((response) => response.json())
         .then((data) => {
-          // Show response message to user
-          alert(data.message);
+          // Show response message in the form
+          formStatus.textContent = data.message;
+          formStatus.className = data.success
+            ? "form-status success"
+            : "form-status error";
 
           if (data.success) {
             // Reset form on success
             this.reset();
+
+            // Hide success message after 5 seconds
+            setTimeout(() => {
+              formStatus.style.display = "none";
+            }, 5000);
           }
         })
         .catch((error) => {
           console.error("Error:", error);
-          alert("An error occurred. Please try again later.");
+          formStatus.textContent = "An error occurred. Please try again later.";
+          formStatus.className = "form-status error";
         })
         .finally(() => {
           // Re-enable submit button
